@@ -46,15 +46,23 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  */
 public class Reflector {
 
+  /**对应的class 类型*/
   private final Class<?> type;
+  /**可读属性的名称集合 即存在相应的get方法的属性*/
   private final String[] readablePropertyNames;
+  /**可写属性的名称集合 即存在相应的set方法的属性*/
   private final String[] writeablePropertyNames;
+  /**记录了属性相应的set 方法   key是属性名称  value是invoker(是对应Method 对象的封装) 对象*/
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  /**记录了属性相应的get方法  key是属性名称  value是invoker对象*/
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  /**记录了set 方法的参数类型  key是属性名称  value是参数类型*/
   private final Map<String, Class<?>> setTypes = new HashMap<>();
+  /**记录了get方法的返回值类型  key是属性名称  value是返回值类型*/
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+  /**记录了默认构造方法*/
   private Constructor<?> defaultConstructor;
-
+  /**记录了所有属性名称的集合*/
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
@@ -307,9 +315,11 @@ public class Reflector {
    * @return An array containing all methods in this class
    */
   private Method[] getClassMethods(Class<?> cls) {
+    //记录类中的全部方法的唯一签名和对应的方法对象
     Map<String, Method> uniqueMethods = new HashMap<>();
     Class<?> currentClass = cls;
     while (currentClass != null && currentClass != Object.class) {
+
       addUniqueMethods(uniqueMethods, currentClass.getDeclaredMethods());
 
       // we also need to look for interface methods -
@@ -327,6 +337,11 @@ public class Reflector {
     return methods.toArray(new Method[methods.size()]);
   }
 
+  /**
+   *
+   * @param uniqueMethods 记录唯一方法map
+   * @param methods
+   */
   private void addUniqueMethods(Map<String, Method> uniqueMethods, Method[] methods) {
     for (Method currentMethod : methods) {
       if (!currentMethod.isBridge()) {
@@ -369,6 +384,7 @@ public class Reflector {
   }
 
   /**
+   * 检查是否能控制成员可访问
    * Checks whether can control member accessible.
    *
    * @return If can control member accessible, it return {@literal true}
